@@ -2,9 +2,9 @@
   <v-app>
     <NavBar />
 
-    <!-- Correct layout element -->
     <v-main>
-      <v-container class="pa-4">
+      <!-- Use fluid + no padding -->
+      <v-container class="pa-0" fluid>
         <RouterView />
       </v-container>
     </v-main>

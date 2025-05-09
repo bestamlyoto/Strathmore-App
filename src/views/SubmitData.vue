@@ -16,11 +16,11 @@
           </v-alert>
 
           <v-form ref="form" @submit.prevent="submitData">
-            <!-- County Selection -->
+            <!-- County -->
             <v-select
               v-model="formData.county_id"
               :items="counties"
-              item-text="name"
+              item-title="name"
               item-value="id"
               label="Select County"
               :rules="[v => !!v || 'County is required']"
@@ -28,13 +28,13 @@
               dense
               required
               class="mb-4"
-            ></v-select>
+            />
 
-            <!-- Energy Type Selection -->
+            <!-- Energy Type -->
             <v-select
               v-model="formData.energy_type_id"
               :items="energyTypes"
-              item-text="name"
+              item-title="name"
               item-value="id"
               label="Energy Type"
               :rules="[v => !!v || 'Energy type is required']"
@@ -43,13 +43,21 @@
               required
               class="mb-4"
             >
-              <template v-slot:item="{ item }">
-                <v-icon :color="item.color" class="mr-2">mdi-circle</v-icon>
+              <template #item="{ props, item }">
+                <v-list-item v-bind="props">
+                  <v-list-item-title>
+                    <v-icon :style="{ color: item.raw.color }" class="mr-2">mdi-circle</v-icon>
+                    {{ item.raw.name }}
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+              <template #selection="{ item }">
+                <v-icon :style="{ color: item.color }" class="mr-1">mdi-circle</v-icon>
                 {{ item.name }}
               </template>
             </v-select>
 
-            <!-- House Type Selection -->
+            <!-- House Type -->
             <v-select
               v-model="formData.house_type"
               :items="houseTypes"
@@ -59,7 +67,7 @@
               dense
               required
               class="mb-4"
-            ></v-select>
+            />
 
             <!-- Energy Capacity -->
             <v-text-field
@@ -70,7 +78,7 @@
               outlined
               dense
               class="mb-4"
-            ></v-text-field>
+            />
 
             <!-- Installation Date -->
             <v-menu
@@ -78,33 +86,32 @@
               :close-on-content-click="false"
               transition="scale-transition"
               offset-y
-              min-width="auto"
+              min-width="290px"
             >
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ props }">
                 <v-text-field
                   v-model="formData.installation_date"
                   label="Installation Date"
                   prepend-icon="mdi-calendar"
                   readonly
-                  v-bind="attrs"
-                  v-on="on"
+                  v-bind="props"
                   outlined
                   dense
                   class="mb-4"
-                ></v-text-field>
+                />
               </template>
               <v-date-picker
                 v-model="formData.installation_date"
-                @input="dateMenu = false"
-              ></v-date-picker>
+                @update:model-value="dateMenu = false"
+              />
             </v-menu>
 
-            <!-- Primary Source Checkbox -->
+            <!-- Is Primary -->
             <v-checkbox
               v-model="formData.is_primary"
               label="This is my primary energy source"
               class="mb-4"
-            ></v-checkbox>
+            />
 
             <!-- Submit Button -->
             <v-btn
@@ -127,24 +134,22 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth' // (Update path if needed)
-import { useRouter } from 'vue-router'
-import axios from '@/services/axios' // If you have a centralized axios, better to import it
+import axios from '@/services/axios'
+import { useAuthStore } from '@/stores/auth'
 
-const router = useRouter()
 const authStore = useAuthStore()
-const user = authStore.user
 
-// Form data
 const formData = ref({
   county_id: null,
   energy_type_id: null,
   house_type: null,
   energy_capacity: null,
-  installation_date: null,
+  installation_date: '', // Format: YYYY-MM-DD
   is_primary: false
 })
 
+const counties = ref([])
+const energyTypes = ref([])
 const houseTypes = [
   'Apartment',
   'Bungalow',
@@ -152,8 +157,7 @@ const houseTypes = [
   'Standalone House',
   'Eco-Dome'
 ]
-const counties = ref([])
-const energyTypes = ref([])
+
 const dateMenu = ref(false)
 const loading = ref(false)
 const successMessage = ref('')
@@ -162,19 +166,21 @@ const form = ref(null)
 
 async function fetchCounties() {
   try {
-    const response = await axios.get('/api/counties')
-    counties.value = response.data
-  } catch (error) {
-    console.error('Error fetching counties:', error)
+    const res = await axios.get('/counties')
+    counties.value = res.data.map(({ id, name }) => ({ id, name }))
+  } catch (e) {
+    console.error('Error fetching counties:', e)
   }
 }
 
 async function fetchEnergyTypes() {
   try {
-    const response = await axios.get('/api/energy-types')
-    energyTypes.value = response.data
-  } catch (error) {
-    console.error('Error fetching energy types:', error)
+    const res = await axios.get('/energy-types')
+    energyTypes.value = res.data.map(({ id, name, color }) => ({
+      id, name, color
+    }))
+  } catch (e) {
+    console.error('Error fetching energy types:', e)
   }
 }
 
@@ -187,32 +193,28 @@ async function submitData() {
   errorMessage.value = ''
 
   try {
-    const response = await axios.post('/api/submit-energy', formData.value)
-
+    await axios.post('/submit-energy', formData.value)
     successMessage.value = 'Energy data submitted successfully!'
     form.value.reset()
-
-  } catch (error) {
-    console.error('Submission error:', error)
-    errorMessage.value = error.response?.data?.message || 'Failed to submit energy data. Please try again.'
+  } catch (e) {
+    console.error(e)
+    errorMessage.value = e.response?.data?.message || 'Submission failed.'
   } finally {
     loading.value = false
   }
 }
 
-onMounted(async () => {
-  await fetchCounties()
-  await fetchEnergyTypes()
+onMounted(() => {
+  fetchCounties()
+  fetchEnergyTypes()
 })
 </script>
-
 
 <style scoped>
 .submit-data-container {
   max-width: 800px;
   margin: 0 auto;
 }
-
 .v-card {
   border-radius: 12px;
 }

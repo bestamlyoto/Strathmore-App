@@ -2,10 +2,11 @@
   <!-- Navigation Drawer -->
   <v-navigation-drawer
     v-model="drawer"
-    color="teal-darken-1"
+    class="custom-drawer"
     dark
     app
     v-if="isAuthenticated || !hideForUnauthenticated"
+    style="background-color: #2c3e50;"
   >
     <v-layout column align-center>
       <v-flex class="my-2 mx-auto text-center">
@@ -33,7 +34,7 @@
 
   <!-- App Bar -->
   <div class="glow-wrapper">
-    <v-app-bar color="teal darken-4" flat class="elevation-10 navbar-glow">
+    <v-app-bar flat class="elevation-10 navbar-glow" dark style="background-color: #2c3e50;">
       <v-app-bar-nav-icon
         @click.stop="drawer = !drawer"
         v-if="isAuthenticated || !hideForUnauthenticated"
@@ -53,9 +54,9 @@
           :key="path.text"
           text
           :to="path.route"
-          class="mx-1"
+          class="mx-1 white--text nav-item"
         >
-          <v-icon left>{{ path.icon }}</v-icon>
+          <v-icon left class="white--text">{{ path.icon }}</v-icon>
           {{ path.text }}
         </v-btn>
       </div>
@@ -63,8 +64,8 @@
       <!-- Mobile Menu -->
       <v-menu offset-y class="d-md-none">
         <template v-slot:activator="{ props }">
-          <v-btn text v-bind="props">
-            <v-icon left>mdi-menu</v-icon>
+          <v-btn text v-bind="props" class="white--text nav-item">
+            <v-icon left class="white--text">mdi-menu</v-icon>
             <span>Menu</span>
           </v-btn>
         </template>
@@ -85,9 +86,9 @@
         v-if="!isAuthenticated"
         text
         to="/login"
-        class="ml-2"
+        class="ml-2 white--text nav-item"
       >
-        <v-icon left>mdi-login</v-icon>
+        <v-icon left class="white--text">mdi-login</v-icon>
         <span>Login</span>
       </v-btn>
 
@@ -95,9 +96,9 @@
         v-if="isAuthenticated"
         text
         @click="handleLogout"
-        class="ml-2"
+        class="ml-2 white--text nav-item"
       >
-        <v-icon left>mdi-logout</v-icon>
+        <v-icon left class="white--text">mdi-logout</v-icon>
         <span>Logout</span>
       </v-btn>
     </v-app-bar>
@@ -174,7 +175,7 @@ const filteredPaths = computed(() => {
 .logo-text {
   font-size: 22px;
   font-weight: bold;
-  color: #00ffcc;
+  color: #ffffff;
 }
 
 .glow-wrapper {
@@ -184,8 +185,8 @@ const filteredPaths = computed(() => {
 
 .glow-bar {
   height: 10px;
-  background: rgba(0, 255, 204, 0.4);
-  box-shadow: 0 0 20px 8px rgba(0, 255, 204, 0.5);
+  background: #2c3e50;
+  box-shadow: 0 0 20px 8px #2c3e50;
   border-radius: 50%;
   filter: blur(4px);
   margin-top: -4px;
@@ -194,6 +195,24 @@ const filteredPaths = computed(() => {
 }
 
 .border {
-  border-left: 4px solid #0ba518;
+  border-left: 4px solid #ffffff;
+}
+
+.custom-drawer {
+  color: white;
+}
+
+.custom-drawer .v-list-item-title,
+.custom-drawer .v-icon,
+.custom-drawer .v-list-item-content span {
+  color: white !important;
+}
+
+.nav-item {
+  color: white !important;
+}
+
+.nav-item .v-icon {
+  color: white !important;
 }
 </style>

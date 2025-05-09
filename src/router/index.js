@@ -8,7 +8,7 @@ import SignUpPage from '../views/SignUp.vue'
 import WelcomePage from '../views/WelcomePage.vue'
 import LocationPage from '../views/LocationPage.vue'
 import EnergyMap from '../views/EnergyMap.vue'
-import Submitdata from '@/views/submit_data.vue'
+import Submitdata from '@/views/SubmitData.vue'
 import ProfilePage from '@/views/ProfilePage.vue'
 import Services from '../views/Services.vue'
 

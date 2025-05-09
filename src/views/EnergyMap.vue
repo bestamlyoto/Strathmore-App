@@ -222,7 +222,7 @@ export default {
   methods: {
     async fetchCountyData() {
       try {
-        const res = await fetch("http://localhost:8000/api/counties-with-energy");
+        const res = await fetch("http://localhost:8000/api/county-data");
         const data = await res.json();
         this.countiesFromBackend = data;
         this.mapCountyData(data);
@@ -278,28 +278,42 @@ export default {
     getTopCounties(counties) {
       return counties
         .map(county => {
-          const submissions = county.energy_submissions || [];
-          const total = submissions.reduce((sum, sub) => sum + sub.count, 0);
-          const dominant = submissions.reduce((max, curr) =>
-            curr.count > max.count ? curr : max, { count: 0, energy_type: { name: "Unknown" } });
-          const adoptionRate = total ? ((dominant.count / total) * 100).toFixed(1) : 0;
+          const totalHouseholds = county.energy_submissions.reduce((sum, sub) => sum + sub.count, 0);
+          const adoptionRate = (totalHouseholds / county.population) * 100;
           return {
             name: county.name,
-            households: total,
-            energyType: dominant.energy_type.name,
-            adoptionRate,
+            households: totalHouseholds,
+            energyType: county.energy_type.name,
+            adoptionRate: adoptionRate.toFixed(1),
           };
         })
-        .sort((a, b) => b.households - a.households)
+        .sort((a, b) => b.adoptionRate - a.adoptionRate)
         .slice(0, 5);
     },
 
+    getEnergyColor(type) {
+      switch (type) {
+        case "Solar": return "orange";
+        case "Wind": return "blue";
+        case "Hydro": return "lightblue";
+        case "Biogas": return "green";
+        case "Geothermal": return "brown";
+        case "Hybrid": return "purple";
+        default: return "grey";
+      }
+    },
+
+    getRankColor(index) {
+      switch (index) {
+        case 0: return "red";
+        case 1: return "orange";
+        case 2: return "yellow";
+        default: return "blue";
+      }
+    },
+
     applyFilters() {
-      console.log("Filters applied:", {
-        county: this.selectedCounty,
-        energyType: this.selectedEnergyType,
-        timePeriod: this.timePeriod,
-      });
+      // Filter logic here based on the selected county, energy type, and time period
     },
 
     resetFilters() {
@@ -307,31 +321,20 @@ export default {
       this.selectedEnergyType = null;
       this.timePeriod = "Last 12 Months";
     },
-
-    getEnergyColor(type) {
-      const colors = {
-        Solar: "orange",
-        Wind: "blue",
-        Hydro: "light-blue",
-        Geothermal: "red",
-        Biogas: "brown",
-        Hybrid: "green",
-      };
-      return colors[type] || "grey";
-    },
-
-    getRankColor(index) {
-      return index === 0 ? "amber darken-3" :
-             index === 1 ? "blue darken-3" :
-             index === 2 ? "brown darken-1" :
-             "green darken-1";
-    },
-  },
+  }
 };
 </script>
 
 <style scoped>
+.energy-map-container {
+  padding: 20px;
+}
+
 .map-wrapper {
+  position: relative;
+}
+
+.placeholder-map {
   position: relative;
 }
 
@@ -345,6 +348,7 @@ export default {
 
 .county-chip {
   position: absolute;
-  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
+
 </style>

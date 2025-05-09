@@ -1,14 +1,25 @@
 <template>
   <div class="green-energy-homepage">
-    <!-- Hero Section -->
+    <!-- Hero Section with Fullscreen Background Video -->
     <section class="hero">
-      <div class="hero-content">
+      <video
+        class="hero-video"
+        autoplay
+        loop
+        muted
+        playsinline
+      >
+        <source src="@/assets/solarvideo.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+
+    </section>
+    <div class="hero-content">
         <h1>Powering Kenya's Green Future</h1>
         <p>Track, share, and celebrate renewable energy adoption across Kenya</p>
         <router-link to="/sign-up" class="cta-button">Join Our Network</router-link>
       </div>
-    </section>
-
     <!-- Featured Section -->
     <section class="featured-section">
       <div class="container">
@@ -138,23 +149,45 @@ import { ref } from 'vue';
   color: #2c3e50;
 }
 
-/* Hero Section */
+/* Hero Section with Fullscreen Video */
 .hero {
-  height: 80vh;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-                    url('@/assets/kenya-landscape.jpg');
-  background-size: cover;
-  background-position: center;
+  position: relative;
+  width: 100vw; /* Make sure it spans full width */
+  height: 100vh;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
   text-align: center;
+  background-color: black; /* fallback */
+}
+
+.hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+}
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 0.5;
 }
 
 .hero-content {
-  max-width: 800px;
+  position: absolute;
+  z-index: 1;
+  color: white;
+  max-width: 90%;
   padding: 0 20px;
+  text-align: center;
 }
 
 .hero h1 {

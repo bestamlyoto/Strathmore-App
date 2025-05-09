@@ -119,11 +119,11 @@ async function handleLogin() {
   if (!valid) return
 
   try {
-    // Example fake login logic (you would call your API here)
     const userData = {
       name: 'John Doe',
       email: email.value,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      token: 'fake_token',  // Replace with actual token
     }
 
     await authStore.login(userData)
@@ -135,7 +135,6 @@ async function handleLogin() {
   }
 }
 </script>
-
 
 <style scoped>
 .login-background {
@@ -150,10 +149,6 @@ async function handleLogin() {
 }
 
 .rounded-lg {
-  border-radius: 12px !important;
-}
-
-.v-card {
-  box-shadow: 0 10px 20px rgba(0, 100, 0, 0.1) !important;
+  border-radius: 10px;
 }
 </style>
