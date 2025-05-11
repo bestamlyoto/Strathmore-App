@@ -1,11 +1,7 @@
-// src/store/index.js
-import { createStore } from 'vuex'
-import auth from './modules/auth'  // 👈 we import the auth module
+// src/stores/index.js
 
-const store = createStore({
-  modules: {
-    auth    // 👈 register the auth module
-  }
-})
+import { createPinia } from 'pinia'
 
-export default store
+const pinia = createPinia()
+
+export default pinia

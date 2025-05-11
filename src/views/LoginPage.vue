@@ -88,6 +88,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
@@ -100,6 +101,8 @@ const password = ref('')
 const showPassword = ref(false)
 const rememberMe = ref(false)
 const form = ref(null)
+const loading = ref(false)
+const error = ref('')
 
 // Validation rules
 const emailRules = [
@@ -112,26 +115,35 @@ const passwordRules = [
   v => (v && v.length >= 6) || 'Password must be at least 6 characters'
 ]
 
-// Login handler with form validation
+// Login handler
 async function handleLogin() {
   const { valid } = await form.value.validate()
-
   if (!valid) return
 
+  loading.value = true
+  error.value = ''
+
   try {
-    const userData = {
-      name: 'John Doe',
+    const response = await axios.post('http://localhost:8000/api/login', {
       email: email.value,
-      created_at: new Date().toISOString(),
-      token: 'fake_token',  // Replace with actual token
+      password: password.value,
+    })
+
+    const userData = {
+      name: response.data.user.name,
+      email: response.data.user.email,
+      created_at: response.data.user.created_at,
+      token: response.data.token,
     }
 
     await authStore.login(userData)
 
     router.push('/submit-data')
   } catch (err) {
-    console.error('Login failed', err)
-    alert('Login failed. Please try again.')
+    console.error('Login failed:', err)
+    error.value = err.response?.data?.message || 'Invalid credentials. Please try again.'
+  } finally {
+    loading.value = false
   }
 }
 </script>
